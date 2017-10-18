@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="app">
+
+<input type="file" :accept="accepts" @change="add">
+    <button type="button"  @click="upload">Upload</button>
+    </div>
+<script src="https://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            file: {},
+            url:'',
+            header: {},
+            sign:'',
+        },
+        methods:{
+            add: function (e) {
+                var self = this;
+                self.file = e.target.files[0];
+            },
+            getauth: function () {
+                var self = this;
+                const formData = new FormData();
+                filename = self.file.name;
+                axios.post('/api/sign', {'filename': filename}).then(function (res) {
+                    formData.append('fileContent', self.file);
+                    formData.append('op', 'upload');
+//                    console.log(formData);
+                    self.sign = res.data.sign;
+                    console.log(self.sign);
+                    url = res.data.url + '?sign=' + self.sign;
+//                    url = res.data.url;
+                    axios.post(url, formData).then(function (res) {
+                        console.log(res);
+                    });
+                    console.log(self.header)
+                })
+            },
+            upload: function () {
+                var self = this;
+                const formData = new FormData();
+                this.getauth();
+
+            }
+        }
+    })
+</script>
+
+
+</body>
+</html>
